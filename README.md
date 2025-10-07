@@ -10,11 +10,38 @@ The repository is ready to run with a stubbed LLM client so you can experiment o
 
 ---
 
+## Why “Agent-Invocable” Matters
+
+You now have two cooperative agent capabilities living in one framework:
+
+| Agent | Description | Core question |
+|-------|-------------|---------------|
+| **Data-Aware Agent** | Understands Salesforce schema, metadata, and relationships. | *What can I do in this org?* |
+| **Dynamic Action Agent** | Generates and executes Apex actions from a goal-aligned blueprint. | *How do I do it right now?* |
+
+By exposing the Dynamic Action agent through an invocable surface (Flow/@InvocableMethod/REST), the two can chain together inside Einstein Copilot, Flow, or any Agentforce orchestration layer:
+
+```
+User prompt → Data-Aware Agent → recommends a blueprint → Dynamic Action agent (invocable) → generates & executes Apex → returns structured result
+```
+
+The new `DynamicActionInvoke` class is the bridge. It wraps recommendation, synthesis, and optional artifact offloading into a Flow-friendly response payload so other agents (LLMs or automation) can call it as a tool, inspect the plan/artifacts, and continue reasoning.
+
+### Chaining the Agents
+
+1. **Discover schema** – Invoke `SchemaDiscoverInvoke.run` to retrieve a scoped snapshot of the org metadata (or limit fields per object for lean payloads).
+2. **Generate & execute** – Pass the same goal/object hints to `DynamicActionInvoke.run` so it can recommend a blueprint, synthesize Apex/tests, and optionally offload large artifacts.
+3. **Orchestrate the result** – Feed the structured response into Flow, Einstein Copilot, or another agent loop to deploy, request confirmation, or execute the generated action plan.
+
+This flow mirrors the “two agents, one framework” vision: the Data-Aware agent answers *what can I do?* while the Dynamic Action agent answers *how do I do it right now?*
+
+---
+
 ## Repository Tour
 
 | Path | Purpose |
 |------|---------|
-| `force-app/main/default/classes/` | Apex sources for blueprint generation, template rendering, orchestration, and tests. |
+| `force-app/main/default/classes/` | Apex sources for schema discovery, blueprint generation, template rendering, orchestration, and tests. |
 | `force-app/main/default/staticresources/` | Curated blueprint library (zip) |
 | `blueprints/` | Raw JSON blueprints (dev-time) |
 | `docs/` | Architecture notes, blueprint schema contract, guardrail catalogue, and integration guides. |
@@ -25,6 +52,7 @@ The repository is ready to run with a stubbed LLM client so you can experiment o
 
 Key Apex entry points:
 - `DynamicActionPipeline` – End-to-end driver that returns both the plan and generated code artifacts.
+- `SchemaDiscoverInvoke` – Invocable wrapper that surfaces schema discovery to Flow, Copilot, or other agents.
 - `BlueprintSynthesisService` – Handles prompt orchestration and response parsing.
 - `CodeTemplateEngine` – Renders Apex/test classes with runtime guardrails baked in.
 - `DynamicActionOrchestrator` – Executes generated actions with safety checks.
@@ -336,6 +364,20 @@ Review `docs/evaluation.md` for detailed setup and `goldens/tests.json` for test
 - **Permission errors**: Run `sf org assign permset -n DynamicAction_Permissions -o <alias>` after deploying metadata.
 - **Scripts not executable**: Run `chmod +x scripts/*.sh` on Unix systems if scripts fail with "permission denied".
 
+### Permissions & Visibility
+- Ensure your permission set (e.g., `DynamicAction_Permissions`) grants Apex Class Access to `SchemaDiscoverInvoke`, `DynamicActionInvoke`, and supporting pipeline classes.
+- Add field-level permissions for any objects/fields the generated actions will update, or rely on guardrail enforcement to block unsafe access.
+- If an action is missing from Flow or Copilot, confirm the running user holds the permission set and that the class status is Active.
+- After deploying metadata, assign the perm set to the automation user:
+  ```bash
+  sf org assign permset -n DynamicAction_Permissions -o <alias>
+  ```
+
+### Flow & Copilot Usage
+- **Flow**: Drop the *Data-Aware: Discover Schema* action followed by *Dynamic Action: Recommend+Generate* into an autolaunched or screen flow; bind the outputs to screens or downstream invocations.
+- **Apex/Agent**: Call the two invocable classes back-to-back to simulate agent-to-agent collaboration or to seed golden scenarios.
+- **Einstein Copilot**: Register both invocable actions as tools with descriptive prompts and example inputs so Copilot can route intents appropriately.
+
 ### Debug Steps
 1. Check scratch org features: `sf org display -o <alias>` should show Sales Cloud enabled
 2. Verify permissions: `sf org assign permset -n DynamicAction_Permissions -o <alias>`
@@ -372,6 +414,14 @@ Local npm aliases
 Issues and feature ideas are tracked in `docs/roadmap.md`. Feel free to suggest enhancements there before submitting a PR.
 
 ---
+
+## Demo Walkthrough
+
+1. Invoke `SchemaDiscoverInvoke.run` (Flow, Apex anonymous, or Copilot tool) to capture a scoped schema snapshot.
+2. Invoke `DynamicActionInvoke.run` with a goal and optional object filters to generate Apex artifacts, tests, and metadata.
+3. Inspect the response for plan JSON, rationale, and artifact content/offload references; optionally persist the snapshot for downstream reasoning.
+4. Deploy generated classes (if not already) and execute the emitted tests to validate the action.
+5. Close with the narrative: *“Two cooperating agents — one understands the data, the other takes dynamic action — communicating through a standard Invocable interface so Flow, Copilot, or custom agents can orchestrate new logic on demand.”*
 
 ## License
 
