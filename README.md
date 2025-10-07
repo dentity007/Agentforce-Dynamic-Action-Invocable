@@ -374,9 +374,19 @@ Review `docs/evaluation.md` for detailed setup and `goldens/tests.json` for test
   ```
 
 ### Flow & Copilot Usage
-- **Flow**: Drop the *Data-Aware: Discover Schema* action followed by *Dynamic Action: Recommend+Generate* into an autolaunched or screen flow; bind the outputs to screens or downstream invocations.
+- **Flow**: Drop the *Data-Aware: Discover Schema* action followed by *Dynamic Action: Recommend+Generate* into an autolaunched or screen flow; bind the outputs to screens or downstream invocations. A minimal canvas looks like:
+  1. **Start** → add an *Action* element, pick **Data-Aware: Discover Schema**, and pass any CSV filters through input variables.
+  2. Store `SchemaDiscoverInvoke`’s `snapshotJson` in a text variable (for logs, screens, or downstream parsing).
+  3. Add a second *Action* element (**Dynamic Action: Recommend+Generate**) and map its `includeObjectsCsv` and `goal` inputs. Optionally set `offloadArtifacts = true` for large outputs.
+  4. Route the response to a Screen or Apex-defined subflow to present `message`, `planJson`, and artifact info.
+  5. Optionally add a *Decision* element that checks `ok == true` before continuing to deployment or notifications.
 - **Apex/Agent**: Call the two invocable classes back-to-back to simulate agent-to-agent collaboration or to seed golden scenarios.
-- **Einstein Copilot**: Register both invocable actions as tools with descriptive prompts and example inputs so Copilot can route intents appropriately.
+- **Einstein Copilot**: Register both invocable actions as tools with descriptive prompts and example inputs so Copilot can route intents appropriately:
+  1. In Copilot Builder, create a **Tool** → **Action** and select the Apex action for `DynamicActionInvoke`.
+  2. Set a description such as *"Generate & deploy a Salesforce action from a business goal; returns Apex artifacts or an offload reference."*
+  3. Provide example input JSON (e.g., `{ "goal": "After a case closes, create a follow-up task", "includeObjectsCsv": "Case,Task" }`) so the intent classifier learns when to call it.
+  4. Add a second tool for `SchemaDiscoverInvoke` with guidance like *"Summarize schema for objects a dynamic action might need"*.
+  5. Test in Preview: ask Copilot to “generate a closed-won automation” and confirm it invokes schema discovery before dynamic action generation.
 
 ### Debug Steps
 1. Check scratch org features: `sf org display -o <alias>` should show Sales Cloud enabled
