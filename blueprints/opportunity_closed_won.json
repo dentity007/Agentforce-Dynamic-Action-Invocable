@@ -1,0 +1,16 @@
+{
+  "name": "opportunity_closed_won",
+  "tags": ["Opportunity", "Update", "Stage", "ClosedWon"],
+  "operation": "UPDATE",
+  "targetSObject": "Opportunity",
+  "inputs": {
+    "Id": {"type":"Id", "required":true},
+    "StageName": {"type":"Picklist", "required":true, "enum":["Closed Won"]},
+    "CloseDate": {"type":"Date", "required":false}
+  },
+  "guardrails": {
+    "fls": {"fields":["StageName","CloseDate"], "requireUpdateable":true},
+    "sharing": "WITH_SHARING"
+  },
+  "checkpoint": "Set opportunity to Closed Won with optional CloseDate."
+}

@@ -1,0 +1,22 @@
+{
+  "name": "case_escalate_tier2",
+  "label": "Case Escalate to Tier 2",
+  "tags": ["Case", "Escalate", "Ownership", "Priority", "Queue"],
+  "targetSObject": "Case",
+  "operation": "UPDATE",
+  "summary": "Escalate a case to Tier 2 with optional priority/status.",
+  "checkpoint": "Escalate a case by reassigning to a Tier 2 queue/owner and optionally bumping priority/status.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Case Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "OwnerId", "fieldApiName": "OwnerId", "label": "New Owner/Queue", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "Priority", "fieldApiName": "Priority", "label": "Priority", "dataType": "String", "required": false, "usage": "FIELD" },
+    { "apiName": "Status", "fieldApiName": "Status", "label": "Status", "dataType": "String", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["OwnerId", "Priority", "Status"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "Priority", "values": ["High", "Medium", "Low"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}
+

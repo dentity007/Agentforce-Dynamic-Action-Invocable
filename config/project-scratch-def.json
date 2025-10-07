@@ -1,0 +1,8 @@
+{
+  "orgName": "DynamicAction",
+  "edition": "Enterprise",
+  "settings": {
+    "lightningExperienceSettings": { "enableS1DesktopEnabled": true },
+    "opportunitySettings": { "enableOpportunityTeam": false }
+  }
+}

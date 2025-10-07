@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Opportunity Stage Update",
+    "goal": "Update opportunity stage to Closed Won",
+    "expectedBlueprint": "tests/generation/golden/opportunity_stage_blueprint.json"
+  },
+  {
+    "name": "Inventory Reservation",
+    "goal": "Reserve stock for a product",
+    "expectedBlueprint": "tests/generation/golden/inventory_reservation_blueprint.json"
+  }
+]

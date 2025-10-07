@@ -1,0 +1,79 @@
+[
+  {
+    "name": "opportunity_closed_won",
+    "goal": "When a deal is approved, set the Opportunity Stage to Closed Won and optionally set CloseDate.",
+    "checks": {
+      "force-app/main/default/classes": {
+        "mustExist": ["DynamicAction_", "Test.cls"],
+        "mustContain": {
+          "*.cls": [
+            "with sharing",
+            "Opportunity",
+            "StageName",
+            "Closed Won"
+          ],
+          "*Test.cls": [
+            "@IsTest",
+            "System.assert"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "lead_convert",
+    "goal": "Convert a qualified lead using ConvertedStatus and optionally skip Opportunity creation.",
+    "checks": {
+      "force-app/main/default/classes": {
+        "mustExist": ["DynamicAction_", "Test.cls"],
+        "mustContain": {
+          "*.cls": [
+            "with sharing",
+            "Lead",
+            "ConvertedStatus"
+          ],
+          "*Test.cls": [
+            "@IsTest",
+            "Lead"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "quote_activate",
+    "goal": "Activate the quote once legal approves it.",
+    "checks": {
+      "force-app/main/default/classes": {
+        "mustExist": ["DynamicAction_", "Test.cls"],
+        "mustContain": {
+          "*.cls": ["Quote", "Status", "Activated"],
+          "*Test.cls": ["@IsTest", "Quote"]
+        }
+      }
+    }
+  },
+  {
+    "name": "campaignmember_add_contact",
+    "goal": "Enroll the contact in the webinar campaign with status Registered.",
+    "checks": {
+      "force-app/main/default/classes": {
+        "mustContain": {
+          "*.cls": ["CampaignMember", "ContactId", "Status", "Registered"]
+        }
+      }
+    }
+  },
+  {
+    "name": "case_escalate",
+    "goal": "Escalate high-priority cases to critical status.",
+    "checks": {
+      "force-app/main/default/classes": {
+        "mustContain": {
+          "*.cls": ["Case","Escalated","Critical"],
+          "*Test.cls": ["@IsTest","Case"]
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "name": "case_escalate",
+  "label": "Case Escalation",
+  "tags": ["service", "Case", "Escalation"],
+  "targetSObject": "Case",
+  "operation": "UPDATE",
+  "summary": "Escalated case with new priority and owner.",
+  "checkpoint": "Escalate the case, adjust priority, and (optionally) reassign ownership.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Case Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "Status", "fieldApiName": "Status", "label": "Status", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Priority", "fieldApiName": "Priority", "label": "Priority", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Escalation_Notes__c", "fieldApiName": "Escalation_Notes__c", "label": "Escalation Notes", "dataType": "String", "required": false, "usage": "FIELD" },
+    { "apiName": "OwnerId", "fieldApiName": "OwnerId", "label": "New Owner", "dataType": "Id", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["Status", "Priority", "Escalation_Notes__c", "OwnerId"] } },
+    { "type": "PII_REDACT", "params": { "fields": ["Escalation_Notes__c"] }, "message": "Redact sensitive escalation notes before execution." },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}

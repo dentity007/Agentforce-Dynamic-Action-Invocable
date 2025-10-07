@@ -1,0 +1,20 @@
+{
+  "name": "oppty_closed_won",
+  "label": "Opportunity Closed Won",
+  "tags": ["sales", "Opportunity", "Stage", "ClosedWon"],
+  "targetSObject": "Opportunity",
+  "operation": "UPDATE",
+  "summary": "Updated Opportunity stage to Closed Won.",
+  "checkpoint": "Set opportunity to Closed Won with optional CloseDate.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Opportunity Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "StageName", "fieldApiName": "StageName", "label": "New Stage", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "CloseDate", "fieldApiName": "CloseDate", "label": "Close Date", "dataType": "Date", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["StageName", "CloseDate"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "StageName", "values": ["Closed Won"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}

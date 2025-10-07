@@ -1,0 +1,32 @@
+name: eval
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install --global @salesforce/cli
+          sf --version
+
+      - name: Auth Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          echo "$SFDX_AUTH_URL" > auth.txt
+          sf org login sfdx-url -f auth.txt -a DevHub -s
+
+      - name: Run evaluation harness
+        run: |
+          chmod +x scripts/e2e-eval.sh
+          ./scripts/e2e-eval.sh

@@ -1,0 +1,44 @@
+{
+  "name": "CreateInventoryReservationTask",
+  "label": "Create Inventory Reservation Task",
+  "category": "DOMAIN",
+  "targetSObject": "Task",
+  "operation": "INSERT",
+  "summary": "Created a high priority Task to trigger inventory follow-up.",
+  "checkpoint": "I will log a Task to request inventory reservation. Proceed?",
+  "inputs": [
+    {
+      "apiName": "Subject",
+      "fieldApiName": "Subject",
+      "label": "Task Subject",
+      "dataType": "String",
+      "required": true,
+      "usage": "FIELD"
+    },
+    {
+      "apiName": "Product2Id",
+      "fieldApiName": "WhatId",
+      "label": "Product Reference",
+      "dataType": "Id",
+      "required": true,
+      "usage": "FIELD"
+    },
+    {
+      "apiName": "Quantity__c",
+      "fieldApiName": "Quantity__c",
+      "label": "Requested Quantity",
+      "dataType": "Decimal",
+      "required": true,
+      "usage": "FIELD"
+    }
+  ],
+  "guardrails": [
+    {
+      "type": "NUMERIC_POSITIVE",
+      "params": {
+        "field": "Quantity__c"
+      },
+      "message": "Quantity must be greater than zero."
+    }
+  ]
+}

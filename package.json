@@ -1,0 +1,19 @@
+{
+  "name": "agentforce-dynamic-action",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Helper scripts for Agentforce Dynamic Action - turns natural language goals into executable Salesforce actions with 24+ curated blueprints covering Sales/Service/SaaS/CPQ/Marketing domains",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "recommend": "node scripts/recommend-cli.js",
+    "blueprints:build": "node scripts/build-blueprint-library.js",
+    "generate": "bash -lc 'mkdir -p .tmp; sf apex run -o ${npm_config_org:-dynamicAction} -f scripts/generate.apex --json > .tmp/generate.json'",
+    "deploy:artifacts": "node scripts/deploy-artifacts.js .tmp/generate.json ${npm_config_org:-dynamicAction}",
+    "tests": "bash -lc 'sf apex run test -o ${npm_config_org:-dynamicAction} -l RunLocalTests -r human'",
+    "e2e": "bash -lc './scripts/e2e.sh ${npm_config_org:-dynamicAction}'"
+    ,
+    "local:loop": "bash -lc 'npm run generate && npm run deploy:artifacts && npm run tests'"
+  }
+}

@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Salesforce DX
+.sfdx/
+.sf/
+**/package.lock
+
+# Local configs
+.env
+.env.*
+.idea/
+.vscode/
+*.log
+coverage/
+
+# Generated artifacts
+/tmp/
+*.zip
+node_modules/
+.tmp/

@@ -1,0 +1,21 @@
+{
+  "name": "opportunity_close_lost",
+  "label": "Opportunity Close Lost",
+  "tags": ["Opportunity", "Stage", "ClosedLost", "Reason"],
+  "targetSObject": "Opportunity",
+  "operation": "UPDATE",
+  "summary": "Mark an opportunity as Closed Lost and optionally add a reason.",
+  "checkpoint": "Mark an opportunity as Closed Lost and optionally log a brief reason in Description.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Opportunity Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "StageName", "fieldApiName": "StageName", "label": "Stage", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Description", "fieldApiName": "Description", "label": "Loss Reason", "dataType": "String", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["StageName", "Description"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "StageName", "values": ["Closed Lost"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}
+

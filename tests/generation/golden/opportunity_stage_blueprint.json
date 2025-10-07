@@ -1,0 +1,36 @@
+{
+  "name": "UpdateOpportunityStage",
+  "label": "Update Opportunity Stage",
+  "category": "DOMAIN",
+  "targetSObject": "Opportunity",
+  "operation": "UPDATE",
+  "summary": "Updated Opportunity stage based on agent directive.",
+  "checkpoint": "I will update the Opportunity stage. Proceed?",
+  "keyFields": ["Id"],
+  "inputs": [
+    {
+      "apiName": "Id",
+      "fieldApiName": "Id",
+      "label": "Opportunity Id",
+      "dataType": "Id",
+      "required": true,
+      "usage": "FIELD"
+    },
+    {
+      "apiName": "StageName",
+      "fieldApiName": "StageName",
+      "label": "New Stage",
+      "dataType": "String",
+      "required": true,
+      "usage": "FIELD"
+    }
+  ],
+  "guardrails": [
+    {
+      "type": "FLS_EDIT",
+      "params": {
+        "fields": ["Id", "StageName"]
+      }
+    }
+  ]
+}

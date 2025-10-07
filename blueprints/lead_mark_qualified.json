@@ -1,0 +1,22 @@
+{
+  "name": "lead_mark_qualified",
+  "label": "Lead Mark Qualified",
+  "tags": ["Lead", "Qualification", "Status", "Rating"],
+  "targetSObject": "Lead",
+  "operation": "UPDATE",
+  "summary": "Move a lead to a qualified state and optionally set rating.",
+  "checkpoint": "Move a lead to a qualified state and optionally set a confidence rating.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Lead Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "Status", "fieldApiName": "Status", "label": "Status", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Rating", "fieldApiName": "Rating", "label": "Rating", "dataType": "String", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["Status", "Rating"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "Status", "values": ["Qualified", "Working - Qualified"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "Rating", "values": ["Hot", "Warm", "Cold"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}
+

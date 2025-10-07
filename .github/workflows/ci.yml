@@ -1,0 +1,86 @@
+name: Dynamic Action CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+env:
+  SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: salesforcecli/actions/setup-sf@v1
+      - name: Authenticate Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          if [ -z "$SFDX_AUTH_URL" ]; then
+            echo "SFDX_AUTH_URL secret not set; skipping validate job." && exit 0
+          fi
+          sf org login sfdx-url --sfdx-url "$SFDX_AUTH_URL" --alias DevHub
+      - name: Create scratch org
+        if: env.SFDX_AUTH_URL != ''
+        run: sf org create scratch -f config/project-scratch-def.json -a ci-validate -s -d 1 -w 10
+      - name: Deploy source
+        if: env.SFDX_AUTH_URL != ''
+        run: sf project deploy start -o ci-validate
+      - name: Assign permissions
+        if: env.SFDX_AUTH_URL != ''
+        run: sf org assign permset -n DynamicAction_Permissions -o ci-validate
+      - name: Run tests
+        if: env.SFDX_AUTH_URL != ''
+        run: sf apex run test -o ci-validate -l RunLocalTests -r human
+      - name: Delete scratch org
+        if: always() && env.SFDX_AUTH_URL != ''
+        run: sf org delete scratch -o ci-validate -p
+
+  golden:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: salesforcecli/actions/setup-sf@v1
+      - name: Authenticate Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          if [ -z "$SFDX_AUTH_URL" ]; then
+            echo "SFDX_AUTH_URL secret not set; skipping golden job." && exit 0
+          fi
+          sf org login sfdx-url --sfdx-url "$SFDX_AUTH_URL" --alias DevHub
+      - name: Create scratch org
+        if: env.SFDX_AUTH_URL != ''
+        run: sf org create scratch -f config/project-scratch-def.json -a ci-golden -s -d 1 -w 10
+      - name: Deploy source
+        if: env.SFDX_AUTH_URL != ''
+        run: sf project deploy start -o ci-golden
+      - name: Run generation benchmark
+        if: env.SFDX_AUTH_URL != ''
+        run: tests/generation/run.sh -o ci-golden
+      - name: Delete scratch org
+        if: always() && env.SFDX_AUTH_URL != ''
+        run: sf org delete scratch -o ci-golden -p
+
+  package:
+    runs-on: ubuntu-latest
+    needs: [validate, golden]
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: salesforcecli/actions/setup-sf@v1
+      - name: Authenticate Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          if [ -z "$SFDX_AUTH_URL" ]; then
+            echo "SFDX_AUTH_URL secret not set; skipping package job." && exit 0
+          fi
+          sf org login sfdx-url --sfdx-url "$SFDX_AUTH_URL" --alias DevHub
+      - name: Create package version (placeholder)
+        if: env.SFDX_AUTH_URL != ''
+        run: |
+          echo "Packaging commands go here (requires packaging configuration)."

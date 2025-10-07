@@ -1,0 +1,20 @@
+{
+  "name": "lead_qualify",
+  "label": "Lead Qualification",
+  "tags": ["sales", "Lead", "Qualification"],
+  "targetSObject": "Lead",
+  "operation": "UPDATE",
+  "summary": "Qualified lead and updated status/rating.",
+  "checkpoint": "Qualify the lead and update status.",
+  "keyFields": ["Id"],
+  "inputs": [
+    { "apiName": "Id", "fieldApiName": "Id", "label": "Lead Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "Status", "fieldApiName": "Status", "label": "Status", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Rating", "fieldApiName": "Rating", "label": "Rating", "dataType": "String", "required": false, "usage": "FIELD" },
+    { "apiName": "IsConverted", "fieldApiName": "IsConverted", "label": "Is Converted", "dataType": "Boolean", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["Status", "Rating", "IsConverted"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}

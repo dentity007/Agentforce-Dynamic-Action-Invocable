@@ -1,0 +1,23 @@
+{
+  "name": "case_create_followup_task",
+  "label": "Case Create Follow-up Task",
+  "tags": ["Case", "Task", "Create", "Followup", "NextStep"],
+  "targetSObject": "Task",
+  "operation": "CREATE",
+  "summary": "Create a follow-up task tied to a case.",
+  "checkpoint": "Create a follow-up task tied to a case with optional priority/status/due date.",
+  "inputs": [
+    { "apiName": "WhatId", "fieldApiName": "WhatId", "label": "Related Case Id", "dataType": "Id", "required": true, "usage": "FIELD" },
+    { "apiName": "Subject", "fieldApiName": "Subject", "label": "Subject", "dataType": "String", "required": true, "usage": "FIELD" },
+    { "apiName": "Priority", "fieldApiName": "Priority", "label": "Priority", "dataType": "String", "required": false, "usage": "FIELD" },
+    { "apiName": "Status", "fieldApiName": "Status", "label": "Status", "dataType": "String", "required": false, "usage": "FIELD" },
+    { "apiName": "ActivityDate", "fieldApiName": "ActivityDate", "label": "Due Date", "dataType": "Date", "required": false, "usage": "FIELD" }
+  ],
+  "guardrails": [
+    { "type": "FLS_EDIT", "params": { "fields": ["WhatId", "Subject", "Priority", "Status", "ActivityDate"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "Priority", "values": ["High", "Normal", "Low"] } },
+    { "type": "ENUM_ALLOWED", "params": { "field": "Status", "values": ["Not Started", "In Progress", "Completed"] } },
+    { "type": "SHARING_REQUIRED" }
+  ]
+}
+

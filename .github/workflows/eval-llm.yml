@@ -1,0 +1,39 @@
+name: eval-llm
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1" # Mondays 08:00 UTC (optional)
+
+jobs:
+  eval_llm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install Salesforce CLI
+        run: |
+          npm i -g @salesforce/cli
+          sf --version
+      - name: Auth Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL }}
+        run: |
+          echo "$SFDX_AUTH_URL" > auth.txt
+          sf org login sfdx-url -f auth.txt -a DevHub -s
+      - name: Create scratch org & deploy
+        run: |
+          sf org create scratch -f config/project-scratch-def.json -a dynamicAction -s
+          sf project deploy start -o dynamicAction
+      - name: Register LLM client
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # If your Named Credential is already in source with the Authorization header configured,
+          # this step can be just:
+          sf apex run -o dynamicAction -f scripts/register-llm.apex
+      - name: Run fuzzy LLM tests
+        env:
+          SF_ORG_ALIAS: dynamicAction
+        run: |
+          node scripts/eval.js
